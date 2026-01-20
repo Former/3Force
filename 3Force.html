@@ -1,0 +1,78 @@
+﻿<!-- 
+Copyright © 2026 
+Алексей Безбородов. Контакты: <AlexeiBv+3Force@narod.ru>
+Лицензия: Общественное достояние: http://unlicense.org/
+License: Public domain: http://unlicense.org/
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Игра 3-я сила</title>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.8.9/brython_stdlib.js"></script>
+</head>
+<body onload="brython()">
+
+<p id="out-text"></p>
+
+<script type="text/python">
+
+from browser import document, html, window
+
+w = 8
+h = w
+
+board = [
+' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', '⛂', '⛂', ' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', 
+' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ', 
+' ', '⛀', ' ', '⛀', ' ', '⛀', ' ', '⛀', '⛀', ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ',
+]
+click_count = 0
+colors = [''] * w * h
+
+def Draw():
+    result_html = "<table border = 1>" 
+
+    result_html += "<tr> <td></td> <td>a</td> <td>b</td> <td>c</td> <td>d</td> <td>e</td> <td>f</td> <td>g</td> <td>h</td>  </tr>" 
+
+    for y in range(h):
+        result_html += "<tr> <td>" + str(y + 1) + " </td>"
+        for x in range(w):
+            bgcolor = "bgcolor=white" 
+            if (x + y) % 2 == 1: 
+                bgcolor = "bgcolor=#999999"
+            if colors[y * w + x] != "":
+                bgcolor = "bgcolor=" + colors[y * w + x]
+            onclick = "onclick='OnClick(" + str(x) + "," + str(y) + ");'"
+            td = "<td " + onclick + " " + bgcolor +  " >" + board[y * w + x] + "</td>"
+            result_html += td
+
+        result_html += "</tr>"
+
+    result_html += "</table>"
+
+    document["out-text"].innerHTML = result_html
+
+def OnClick(x, y):
+    global click_count
+    index = y * w + x
+    if board[index] == '⛀' and colors[index] == "":
+        click_count += 1
+        print("click_count = ", click_count)
+    if colors[index] == "red":
+        colors[index] = ""
+    elif board[index] == '⛀':
+        colors[index] = "red"
+    Draw()
+
+window.OnClick = OnClick
+Draw()
+
+</script>
+
+</body>
+
+</html>
