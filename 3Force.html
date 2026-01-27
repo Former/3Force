@@ -1,25 +1,9 @@
-﻿<!-- 
-Copyright © 2026 
-Алексей Безбородов. Контакты: <AlexeiBv+3Force@narod.ru>
-Лицензия: Общественное достояние: http://unlicense.org/
-License: Public domain: http://unlicense.org/
--->
-<!DOCTYPE html>
-<html>
+in_html = True
 
-<head>
-<meta charset="UTF-8">
-<title>Игра 3-я сила</title>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.8.9/brython_stdlib.js"></script>
-</head>
-<body onload="brython()">
-
-<p id="out-text"></p>
-
-<script type="text/python">
-
-from browser import document, html, window
+try:
+    from browser import document, html, window
+except ImportError:
+    in_html = False
 
 w = 8
 h = w
@@ -56,6 +40,36 @@ def Draw():
 
     document["out-text"].innerHTML = result_html
 
+words = "abcdefgh"
+
+def colored_text(txt_msg, rf, bf, gf, rb, gb, bb):
+    style = '\33[38;2;' + str(rf) + ';' + str(gf) + ';' + str(bf) + ';48;2;' + str(rb) + ';' +str(gb) + ';' + str(bb) + 'm'
+    end = '\33[0m'
+    return style + txt_msg + end
+
+def DrawText():
+    new_line = "\n"
+    rf, bf, gf = 255, 255, 255
+    wrf, wbf, wgf = 155, 155, 155
+    wrb, wbb, wgb = 0, 0, 0
+    result = "  " + colored_text(words, wrf, wbf, wgf, wrb, wgb, wbb) + new_line
+
+    for y in range(h):
+        result += colored_text(str(y + 1), wrf, wbf, wgf, wrb, wgb, wbb) + " " 
+        for x in range(w):
+            rb, gb, bb = 0, 0, 0
+            if (x + y) % 2 == 1: 
+                rb, gb, bb = 100, 100, 100
+            if colors[y * w + x] != "":
+                rb, gb, bb = 255, 0, 0
+            td = colored_text(board[y * w + x], rf, bf, gf, rb, gb, bb)
+            result += td
+
+        result += new_line
+
+    print(result)
+
+
 def OnClick(x, y):
     global click_count
     index = y * w + x
@@ -66,13 +80,16 @@ def OnClick(x, y):
         colors[index] = ""
     elif board[index] == '⛀':
         colors[index] = "red"
+    if (in_html):
+        Draw()
+
+if in_html:
+    window.OnClick = OnClick
     Draw()
-
-window.OnClick = OnClick
-Draw()
-
-</script>
-
-</body>
-
-</html>
+else:
+    while True:
+        DrawText()
+        s = input("Введите следующий ход (например e2):")
+        x = int(words.find(s[0]))
+        y = int(s[1]) - 1
+        OnClick(x, y)
