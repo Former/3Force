@@ -1,3 +1,25 @@
+<!-- 
+Copyright © 2026 
+Алексей Безбородов. Контакты: <AlexeiBv+3Force@narod.ru>
+Лицензия: Общественное достояние: http://unlicense.org/
+License: Public domain: http://unlicense.org/
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Игра 3-я сила</title>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.8.9/brython.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/brython@3.8.9/brython_stdlib.js"></script>
+</head>
+<body onload="brython()">
+
+<p id="out-text"></p>
+
+<script type="text/python">
+
+
 in_html = True
 
 try:
@@ -8,16 +30,23 @@ except ImportError:
 w = 8
 h = w
 
-board = [
+boardChekers = [
 ' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', '⛂', '⛂', ' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', 
 ' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', '⛂', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
 ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ', 
 ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ', '⛀', '⛀', ' ', '⛀', ' ', '⛀', ' ', '⛀', ' ',
 ]
+boardChess = [
+'♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜', '♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟', 
+' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 
+'♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙', '♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖',
+]
+board = boardChekers
 click_count = 0
 colors = [''] * w * h
 
-def Draw():
+def Draw(onClickFunc):
     result_html = "<table border = 1>" 
 
     result_html += "<tr> <td></td> <td>a</td> <td>b</td> <td>c</td> <td>d</td> <td>e</td> <td>f</td> <td>g</td> <td>h</td>  </tr>" 
@@ -30,7 +59,7 @@ def Draw():
                 bgcolor = "bgcolor=#999999"
             if colors[y * w + x] != "":
                 bgcolor = "bgcolor=" + colors[y * w + x]
-            onclick = "onclick='OnClick(" + str(x) + "," + str(y) + ");'"
+            onclick = "onclick='" + onClickFunc + "(" + str(x) + "," + str(y) + ");'"
             td = "<td " + onclick + " " + bgcolor +  " >" + board[y * w + x] + "</td>"
             result_html += td
 
@@ -42,8 +71,8 @@ def Draw():
 
 words = "abcdefgh"
 
-def colored_text(txt_msg, rf, bf, gf, rb, gb, bb):
-    style = '\33[38;2;' + str(rf) + ';' + str(gf) + ';' + str(bf) + ';48;2;' + str(rb) + ';' +str(gb) + ';' + str(bb) + 'm'
+def colored_text(txt_msg, red_front, green_front, blue_front, red_back, green_back, blue_back):
+    style = '\33[38;2;' + str(red_front) + ';' + str(green_front) + ';' + str(blue_front) + ';48;2;' + str(red_back) + ';' + str(green_back) + ';' + str(blue_back) + 'm'
     end = '\33[0m'
     return style + txt_msg + end
 
@@ -70,7 +99,7 @@ def DrawText():
     print(result)
 
 
-def OnClick(x, y):
+def OnClickCheckers(x, y):
     global click_count
     index = y * w + x
     if board[index] == '⛀' and colors[index] == "":
@@ -81,15 +110,43 @@ def OnClick(x, y):
     elif board[index] == '⛀':
         colors[index] = "red"
     if (in_html):
-        Draw()
+        Draw('OnClickCheckers')
+
+def OnClickChess(x, y):
+    index = y * w + x
+    if colors[index] == "red":
+        colors[index] = ""
+    else:
+        colors[index] = "red"
+    if (in_html):
+        Draw('OnClickChess')
 
 if in_html:
-    window.OnClick = OnClick
-    Draw()
+    window.OnClickCheckers = OnClickCheckers
+    Draw('OnClickCheckers')
 else:
+    q = '''
+Укажите тип игры (по умолчанию 1):
+1 - Шашки
+2 - Шахматы
+:'''
+    gameType = input(q)
+    if gameType == '2':
+        board = boardChess
+
     while True:
         DrawText()
         s = input("Введите следующий ход (например e2):")
         x = int(words.find(s[0]))
         y = int(s[1]) - 1
-        OnClick(x, y)
+        if gameType == '2':
+            OnClickChess(x, y)
+        else:
+            OnClickCheckers(x, y)
+
+
+</script>
+
+</body>
+
+</html>
